@@ -1,0 +1,36 @@
+version: '3'
+services:
+  parser:
+    build: .
+    container_name: rss_parser
+    command: go run .
+    environment:
+      - PARSER_LINKS=https://news.yandex.ru/koronavirus.rss,https://news.yandex.ru/computers.rss,https://news.yandex.ru/travels.rss
+      - PARSER_THREADS=5
+      - PARSER_TIMEOUT=1
+      - PARSER_KEY_WORDS=коронавирус,авиация
+
+      - POSTGRES_HOST=db
+      - POSTGRES_DB=dev
+      - POSTGRES_USER=postgres-dev
+      - POSTGRES_PASSWORD=1234
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
+
+  db:
+    image:
+       postgres
+    ports:
+      - 5432:5432
+    container_name:
+        rss_db
+    volumes:
+      - database-data:/var/lib/postgresql/data
+    environment:
+       - POSTGRES_DB=dev
+       - POSTGRES_USER=postgres-dev
+       - POSTGRES_PASSWORD=1234
+volumes:
+  database-data:

@@ -1,0 +1,22 @@
+parser:
+  links:
+    - "https://news.yandex.ru/koronavirus.rss"
+    - "https://news.yandex.ru/computers.rss"
+    - "https://news.yandex.ru/travels.rss"
+  threads: 2
+  timeout: 1
+  key_words:
+    - "коронавирус"
+    - "авиация"
+
+db:
+  host: "localhost"
+  port: 5432
+  database: "dev"
+  username: "postgres-dev"
+  password: "1234"
+
+
+observer:
+  host: "127.0.0.1"
+  port: 9000
