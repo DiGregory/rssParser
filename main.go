@@ -17,15 +17,15 @@ type config struct {
 		KeyWords []string `yaml:"key_words" env:"PARSER_KEY_WORDS"`
 	} `yaml:"parser"`
 	DB struct {
-		Host     string `yaml:"host" env:"POSTGRES_HOST" env-default:"db"  `
-		Port     string `yaml:"port" env:"POSTGRES_PORT" env-default:"5432" `
-		User     string `yaml:"username" env:"POSTGRES_USER" env-default:"db"  `
+		Host     string `yaml:"host" env:"POSTGRES_HOST" env-default:"db"`
+		Port     string `yaml:"port" env:"POSTGRES_PORT" env-default:"5432"`
+		User     string `yaml:"username" env:"POSTGRES_USER" env-default:"db"`
 		Password string `yaml:"password" env:"POSTGRES_PASSWORD" env-default:"1234"`
 		Name     string `yaml:"db-name" env:"POSTGRES_DB"  env-default:"dev"`
 	} `yaml:"db"`
 	Observer struct {
-		Host string `yaml:"host"   `
-		Port string `yaml:"port"   `
+		Host string `yaml:"host"`
+		Port string `yaml:"port"`
 	} `yaml:"observer"`
 }
 
@@ -59,6 +59,5 @@ func main() {
 	if err != nil {
 		logrus.WithError(err).Fatal("Observer start error")
 	}
-	//observer.ClientStart(fmt.Sprintf("%s:%s", cfg.Observer.Host, cfg.Observer.Port))
 
 }
