@@ -4,11 +4,11 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/grpclog"
 	"github.com/DiGregory/s7testTask/proto"
-	"context"
 	"fmt"
+	"context"
 )
 
-func start(host string)(){
+func ClientStart(host string) () {
 	opts := []grpc.DialOption{
 		grpc.WithInsecure(),
 	}
@@ -19,13 +19,12 @@ func start(host string)(){
 
 	defer conn.Close()
 
-	client:= proto.NewObserverClient(conn)
-	request:=&proto.Request{Message:"lel"}
-	response,err:=client.Do(context.Background(),request)
+	client := proto.NewNewsServiceClient(conn)
+	request := &proto.GetNewsRequest{}
+	response, err := client.GetNews(context.Background(), request)
 	if err != nil {
 		grpclog.Fatalf("fail to dial: %v", err)
 	}
 
-	fmt.Println(response.Message)
-
+	fmt.Println(response.News)
 }

@@ -9,13 +9,10 @@ services:
       - PARSER_THREADS=5
       - PARSER_TIMEOUT=1
       - PARSER_KEY_WORDS=коронавирус,авиация
-
       - POSTGRES_HOST=db
       - POSTGRES_DB=dev
       - POSTGRES_USER=postgres-dev
       - POSTGRES_PASSWORD=1234
-    ports:
-      - 8000:8000
     depends_on:
       - db
 

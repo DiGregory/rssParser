@@ -1,9 +1,8 @@
 package parser
 
 import (
-	"fmt"
 	"time"
-
+	"github.com/sirupsen/logrus"
 	"github.com/mmcdole/gofeed"
 	"strings"
 	"github.com/DiGregory/s7testTask/storage"
@@ -35,7 +34,6 @@ func NewPool(threads, timeout int, keyWords []string, newsStorage *storage.NewsS
 }
 func (p *ParserPool) Start(links []string) {
 	jobs := make(chan string, 1)
-
 	for i := 0; i < p.workers; i++ {
 		p.newWorker(i, jobs)
 	}
@@ -46,38 +44,31 @@ func (p *ParserPool) Start(links []string) {
 			Link: link,
 		})
 	}
-
-	for {
-		select {
-		case <-time.NewTicker(time.Second).C:
-			for _, n := range news {
-				if time.Since(n.UpdatedAt).Minutes() > p.timeout.Minutes() {
-					n.UpdatedAt = time.Now()
-					jobs <- n.Link
-				}
+	for range time.NewTicker(time.Second).C {
+		for _, n := range news {
+			if time.Since(n.UpdatedAt) >= p.timeout {
+				n.UpdatedAt = time.Now()
+				jobs <- n.Link
 			}
-
 		}
-
 	}
 }
 
 func (p ParserPool) newWorker(id int, work chan string) {
+	fp := gofeed.NewParser()
 	go func() {
 		for {
 			select {
 			case link := <-work:
-				fp := gofeed.NewParser()
 				rss, err := fp.ParseURL(link)
 				if err != nil {
-					fmt.Println(err)
+					logrus.WithError(err).WithField("worker", id).Error("Parse url error")
+					continue
 				}
 				news := make([]*storage.News, 0)
 				for _, i := range rss.Items {
-					ok := false
 					for _, kw := range p.keyWords {
 						if strings.Contains(i.Title, kw) || strings.Contains(i.Description, kw) {
-							ok = true
 							news = append(news, &storage.News{
 								Title:       i.Title,
 								Description: i.Description,
@@ -86,11 +77,12 @@ func (p ParserPool) newWorker(id int, work chan string) {
 							break
 						}
 					}
-					if !ok {
-						continue
-					}
 				}
 				err = p.storage.CreateNews(news)
+				if err != nil {
+					logrus.WithError(err).WithField("worker", id).Error("Create news error")
+					continue
+				}
 			}
 		}
 	}()
