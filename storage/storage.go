@@ -2,8 +2,9 @@ package storage
 
 import (
 	"database/sql"
-	"io/ioutil"
 	"fmt"
+	"io/ioutil"
+
 	_ "github.com/lib/pq"
 )
 

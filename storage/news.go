@@ -13,7 +13,7 @@ type NewsStorage struct {
 	DB *sql.DB
 }
 
-func NewNewsStorage(conn *sql.DB) *NewsStorage {
+func NewNewsStorage(conn *sql.DB) NewsStorager {
 	return &NewsStorage{DB: conn}
 }
 
@@ -35,7 +35,8 @@ func (s *NewsStorage) CreateNews(news []*News) error {
 			n.Title, n.Description, n.Link,
 		)
 		if err != nil {
-			return tx.Rollback()
+			tx.Rollback()
+			return err
 		}
 	}
 	return tx.Commit()

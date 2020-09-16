@@ -2,8 +2,9 @@ package observer
 
 import (
 	"net"
+
+	"github.com/DiGregory/rssParser/proto"
 	"google.golang.org/grpc"
-	"github.com/DiGregory/s7testTask/proto"
 )
 
 func Start(address string, service *NewsService) error {

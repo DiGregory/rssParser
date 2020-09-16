@@ -1,14 +1,15 @@
 package observer
 
 import (
+	"context"
+	"fmt"
+
+	"github.com/DiGregory/rssParser/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/grpclog"
-	"github.com/DiGregory/s7testTask/proto"
-	"fmt"
-	"context"
 )
 
-func ClientStart(host string) () {
+func ClientStart(host string) {
 	opts := []grpc.DialOption{
 		grpc.WithInsecure(),
 	}

@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/DiGregory/s7testTask/parser"
-	"github.com/DiGregory/s7testTask/storage"
+
+	"github.com/DiGregory/rssParser/observer"
+	"github.com/DiGregory/rssParser/parser"
+	"github.com/DiGregory/rssParser/storage"
 	"github.com/ilyakaznacheev/cleanenv"
 	"github.com/sirupsen/logrus"
-	"github.com/DiGregory/s7testTask/observer"
 )
 
 type config struct {

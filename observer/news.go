@@ -2,10 +2,10 @@ package observer
 
 import (
 	"context"
-	"github.com/DiGregory/s7testTask/proto"
-	"github.com/DiGregory/s7testTask/storage"
-)
 
+	"github.com/DiGregory/rssParser/proto"
+	"github.com/DiGregory/rssParser/storage"
+)
 
 type NewsService struct {
 	storage storage.NewsStorager
@@ -30,10 +30,10 @@ func (nss *NewsService) GetNews(ctx context.Context, request *proto.GetNewsReque
 	response := new(proto.GetNewsResponse)
 	for _, n := range news {
 		response.News = append(response.News, &proto.News{
-			Id:                   n.ID,
-			Title:                n.Title,
-			Description:          n.Description,
-			Link:                 n.Link,
+			Id:          n.ID,
+			Title:       n.Title,
+			Description: n.Description,
+			Link:        n.Link,
 		})
 	}
 	return response, nil

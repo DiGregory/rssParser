@@ -1,15 +1,17 @@
 package parser
 
 import (
-	"time"
-	"github.com/sirupsen/logrus"
-	"github.com/mmcdole/gofeed"
 	"strings"
-	"github.com/DiGregory/s7testTask/storage"
+	"time"
+
+	"github.com/DiGregory/rssParser/storage"
+	"github.com/mmcdole/gofeed"
+	"github.com/sirupsen/logrus"
 )
 
 type ParserPooler interface {
 	Start(links []string)
+	newWorker(id int, work chan string)
 }
 
 type News struct {
@@ -21,10 +23,10 @@ type ParserPool struct {
 	workers  int
 	timeout  time.Duration
 	keyWords []string
-	storage  *storage.NewsStorage
+	storage  storage.NewsStorager
 }
 
-func NewPool(threads, timeout int, keyWords []string, newsStorage *storage.NewsStorage) ParserPooler {
+func NewPool(threads, timeout int, keyWords []string, newsStorage storage.NewsStorager) ParserPooler {
 	return &ParserPool{
 		workers:  threads,
 		timeout:  time.Minute * time.Duration(timeout),
@@ -54,36 +56,35 @@ func (p *ParserPool) Start(links []string) {
 	}
 }
 
-func (p ParserPool) newWorker(id int, work chan string) {
+func (p *ParserPool) newWorker(id int, work chan string) {
 	fp := gofeed.NewParser()
 	go func() {
 		for {
-			select {
-			case link := <-work:
-				rss, err := fp.ParseURL(link)
-				if err != nil {
-					logrus.WithError(err).WithField("worker", id).Error("Parse url error")
-					continue
-				}
-				news := make([]*storage.News, 0)
-				for _, i := range rss.Items {
-					for _, kw := range p.keyWords {
-						if strings.Contains(i.Title, kw) || strings.Contains(i.Description, kw) {
-							news = append(news, &storage.News{
-								Title:       i.Title,
-								Description: i.Description,
-								Link:        i.Link,
-							})
-							break
-						}
+			link := <-work
+			rss, err := fp.ParseURL(link)
+			if err != nil {
+				logrus.WithError(err).WithField("worker", id).Error("Parse url error")
+				continue
+			}
+			news := make([]*storage.News, 0)
+			for _, i := range rss.Items {
+				for _, kw := range p.keyWords {
+					if strings.Contains(i.Title, kw) || strings.Contains(i.Description, kw) {
+						news = append(news, &storage.News{
+							Title:       i.Title,
+							Description: i.Description,
+							Link:        i.Link,
+						})
+						break
 					}
 				}
-				err = p.storage.CreateNews(news)
-				if err != nil {
-					logrus.WithError(err).WithField("worker", id).Error("Create news error")
-					continue
-				}
 			}
+			err = p.storage.CreateNews(news)
+			if err != nil {
+				logrus.WithError(err).WithField("worker", id).Error("Create news error")
+				continue
+			}
+
 		}
 	}()
 
